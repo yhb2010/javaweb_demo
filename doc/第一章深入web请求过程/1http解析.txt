@@ -1,0 +1,23 @@
+常见的http请求头：
+	1、Accept-Charset：用于指定客户端接受的字符集
+	2、Accept-Encoding：用于指定可接受的内容编码，如Accept-Encoding:gzip.default
+	3、Accept-Language：用于指定一种自然语言，如zh-cn
+	4、Host：指定被请求资源的Internet主机和端口号，如www.taobao.com
+	5、User-Agent：客户端将他的操作系统、浏览器和其它属性告诉服务器
+	6、Connection：当前连接是否保持，如Keep-Alive
+
+常见的http响应头：
+	1、Server：使用的服务器名称啊，如Apache/1.3.6(Unix)
+	2、Content-type：指定发送给接收者的实体正文的媒体类型，如text/html;charset=GBK
+	3、Content-Encoding：与请求报头Accept-Encoding对应，告诉浏览器服务器端采用的是什么压缩编码
+	4、Content-Language：描述了资源所使用的自然语言。与Accept-Language对应
+	5、Content-Length：指明实体正文的长度，用以字节方式存储的十进制数字来表示
+	6、Keep-Alive：保持连接的时间，如timeout=5,max=120
+
+常见的http状态码：
+	1、200：客户端请求成功
+	2、302：临时跳转，跳转的地址通过Location指定
+	3、400：客户端请求有语法错误，不能被服务器识别
+	4、403：服务器接收到请求，但是拒绝提供服务
+	5、404：请求的资源不存在
+	6、500：服务器发生不可预期的错误

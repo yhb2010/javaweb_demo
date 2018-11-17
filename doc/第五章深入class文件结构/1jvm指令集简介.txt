@@ -1,0 +1,90 @@
+[表示的是数组，L表示的是一个类形式而不是基本数据类型，凡是L表示的类后面都会以;结尾，表示这是一个类的结束。
+public static main([Ljava/lang/String;)V方法中的参数包含在圆括号之内，紧跟圆括号后面的就是方法的返回类型。
+
+与类相关的jvm指令：
+	checkcast：检验类型转换，检验未通过将抛出ClassCastException
+	getfield：获取指定类的实例域，并将其值压入栈顶
+	getstatic：获取指定类的静态域，并将其值压入栈顶
+	instanceof：检验对象是否是指定的类的实例，如果是，则将1压入栈顶，否则将0压入栈顶
+	new：创建一个对象，并将其引用值压入栈顶
+
+与方法相关的jvm指令：
+	invokeinterface：调用接口方法
+	invokespecial：调用超类构造方法、实例初始化方法或私有方法
+	invokestatic：调用静态方法
+	invokevirtual：调用实例方法
+
+各个数据类型的表示方式：
+	数组（如int[]）：[（表示成[I）
+	类（String）：L;（表示成Ljava/lang/String;）
+	byte：B
+	boolean：Z
+	char：C
+	double：D
+	float：F
+	int：I
+	long：L
+	short：S
+	void：V
+
+与类属性相关的jvm指令：
+	getfield：获取指定类的实例域，并将其值压入栈顶
+	getstatic：获取指定类的静态域，并将其值压入栈顶
+	putfield：为指定类的实例域赋值
+	putstatic：为指定类的静态域赋值
+
+与栈操作相关：
+	dup：将当前的栈顶元素复制一份，并压入栈中
+	dup_x1：复制栈顶数值并将两个复制值压入栈顶
+	dup_x2：复制栈顶数值并将三个（或两个）复制值压入栈顶
+	dup2：复制栈顶一个（long或double类型的）或两个（其它）数值并将复制值压入栈顶
+	dup2_x1：将a, {b, c}复制成{b, c}, a, {b, c}
+	dup2_x2：将{d, c}, {b, a}复制成{b, a}, {d, c}, {b, a}
+	pop：从当前栈顶出栈一个元素
+	pop2：将栈顶的一个long或double类型的或两个其它数值从栈顶弹出
+	swap：将栈顶两个非long或double类型的数值交换
+
+与本地变量操作相关：
+	aload：将当前本地变量n放入栈顶中，变量n是一个引用
+	aload_0：将当前本地变量0放入栈顶中，变量0是一个引用
+	aload_1：将当前本地变量1放入栈顶中，变量1是一个引用
+	aload_2：将当前本地变量2放入栈顶中，变量2是一个引用
+	aload_3：将当前本地变量3放入栈顶中，变量3是一个引用
+	astore：将栈顶元素存入本地变量n中，变量n是一个引用
+	astore_1：将栈顶元素存入本地变量1中，变量1是一个引用
+	astore_2：将栈顶元素存入本地变量2中，变量2是一个引用
+	astore_3：将栈顶元素存入本地变量3中，变量3是一个引用
+	还有d、f、i、l对应double、float、int、long类型变量
+
+与运算相关：
+	dadd：将栈顶两个double型数值相加，结果压入栈顶
+	dcmpg：比较栈顶两个double类型数值的大小，并将结果1、0、-1压入栈顶，当其中一个数值为NaN时，将1压入栈顶
+	dcmpl：比较栈顶两个double类型数值的大小，并将结果1、0、-1压入栈顶，当其中一个数值为NaN时，将-1压入栈顶
+	ddiv：将栈顶两个double类型数值相除，结果压入栈顶
+	dmul：将栈顶两个double类型数值相乘，结果压入栈顶
+	dneg：将栈顶double类型数值取负，结果压入栈顶
+	drem：将栈顶两个double类型数值做取模运算，结果压入栈顶
+	dsub：将栈顶两个double类型数值相减，结果压入栈顶
+	还有f、i、l对应float、int、long类型变量
+	i2b：将栈顶int类型数值强制转换成byte类型数值，结果压入栈顶
+	i2c：将栈顶int类型数值强制转换成char类型数值，结果压入栈顶
+	i2s：将栈顶int类型数值强制转换成short类型数值，结果压入栈顶
+	iand：将栈顶两个int类型数值相与，结果压入栈顶
+	ior：将栈顶两个int类型数值相或，结果压入栈顶
+	ishl：将int类型数值左移位指定位数，结果压入栈顶
+	ishr：将int类型数值右移位指定位数，结果压入栈顶
+	iushr：将无符号int类型数值右移位指定位数，结果压入栈顶
+	ixor：将栈顶两个int类型数值按位异或，结果压入栈顶
+	还有l对应long类型变量
+
+与常量相关的操作：
+	aconst_null：将null压入栈顶
+	bipush：将单字节的常量值-128至127压入栈顶
+	dconst_0：向栈顶压入一个double常量0
+	dconst_1：向栈顶压入一个double常量1
+	还有f、i、l对应float、int、long类型变量
+	iconst_m1：将int类型-1压入栈顶
+	ldc：将int、float或String类型常量值从常量池中压入栈顶
+	ldc_w：将int、float或String类型常量值从常量池中压入栈顶(宽索引)
+	ldc2_w：将long或double类型常量值从常量池中压入栈顶(宽索引)
+	sipush：将一个短整型常量值-32768至32767压入栈顶

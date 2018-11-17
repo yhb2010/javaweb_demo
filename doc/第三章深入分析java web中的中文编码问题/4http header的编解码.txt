@@ -1,0 +1,9 @@
+当客户端发起一个http请求时，除上面的url外可能还会在header中传递其它参数，如cookie、redirectPath等，这些用户设置的值很可能也存在编码问
+题。
+
+对header中的项进行编码也是在调用request.getHeader时进行的。如果请求的header项没有解码则调用MessageByte的toString方法，这个方法对从
+byte到char的转化使用的默认编码也是iso-8859-1，而我们不能设置header的其它解码格式，所以如果你设置的header中有非ascii字符，解码中肯定
+有乱码。
+
+我们在添加header时也是同样的道理，不要在header中传递非ascii字符，如果一定要传递，可以先将这些字符用org.apache.catalina.util.
+URLEncoder编码，再添加到header中，这样在浏览器到服务器的传递过程中就不会丢失信息了，访问时再解码。

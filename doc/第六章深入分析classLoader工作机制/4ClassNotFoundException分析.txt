@@ -1,0 +1,8 @@
+这个异常通常发生在显示加载类的时候，例如：
+	1、Class.forName("");
+	2、ClassLoader中的loadClass()方法
+	3、ClassLoader中的findSystemClass()方法
+
+出现这类错误就是当jvm要加载指定文件的字节码到内存时，并没有找到这个文件对应的字节码，也就是这个文件并不存在，解决方法是检查在当前的classpath目录下有没有
+指定的文件存在。如果不知道当前的classpath路径，就可以通过下面语句获取：
+	this.getClass().getClassLoader().getResource("").toString();

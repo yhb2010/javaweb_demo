@@ -1,0 +1,12 @@
+有时我们用request.getParameter()获取参数时会出现乱码。但是使用下面的方式就可以解决：
+	new String(request.getParameter(name).getByte("iso-8859-1"), "gbk")
+这是怎么回事呢？
+
+			i	空格	a	m	空格	君		山
+	char	49	20	61	6d	20	541b	5c71
+	byte	49	20	61	6d	20	be fd	c9 bd	(gbk编码)
+	char	49	20	61	6d	20	be fd	c9 bd	(iso-8859-1解码)
+	byte	49	20	61	6d	20	be fd	c9 bd	(iso-8859-1编码)
+	char	49	20	61	6d	20	541b	5c71	(gbk解码)
+
+	但不建议这种方式，增加了一次额外的编解码过程，应该使用useBodyEncopdingForURI配置项设置为true。

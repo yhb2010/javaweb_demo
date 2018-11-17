@@ -1,0 +1,13 @@
+我们经常会扩展ClassLoader，主要会用到下面几个方法：
+	1、defineClass(byte[], int, int) Class<?>：用来将byte字节流解析成jvm能够识别的Class对象，有了这个方法意味着我们不仅仅可以通过class文件实例化
+	对象，还可以通过其他方式实例化对象，如我们通过网络接收到一个类的字节码，拿这个字节码流直接创建类的Class对象形式实例化对象。注意，如果直接调用这个方法
+	生成类的class对象，这个类的class对象还没有resolve，这个resolve将会在这个对象真正实例化时才进行。
+	defineClass通常和findClass(String) Class<?>方法一起使用，我们通过直接覆盖ClassLoader父类的findClass方法来实现类的加载机制，从而取得要加载类
+	的字节码。然后调用defineClass方法生成类的Class对象，如果你想在类被记载到jvm中时就被链接，那么可以接着调用另外一个resolveClass(Class<?>) void
+	方法，当然你也可以选择让jvm来解决什么时候才链接这个类。
+
+	如果你不想重新定义类加载的规则，也没有复杂的处理逻辑，只想在运行时能够加载自己指定的一个类，那么你可以用this.getClass().getClassLoader().
+	loadClass("class")调用ClassLoader的loadClass方法获取这个类的Class对象，这个loadClass还有重载方法，你同样可以决定在什么时候解析这个类。
+
+	ClassLoader是个抽象类，他有很多子类，我们如果要实现自己的ClassLoader，一般会继承URLClassLoader类，因为这个类已经帮我们实现了大部分工作，我们只需
+	要在适当的地方做一些修改就可以了。

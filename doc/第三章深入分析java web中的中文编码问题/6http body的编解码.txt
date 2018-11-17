@@ -1,0 +1,8 @@
+当用户请求的资源已经成功获取后，这些内容将通过response返回给客户端浏览器，这个过程要先经过编码，再到浏览器进行解码。编解码字符集可以通过
+response.setCharacterEncoding来设置，他将会覆盖request.getCharacterEncoding的值，并且通过header的content-type返回给客户端，
+浏览器接收到返回的socket流时将通过content-type的charset来解码。如果返回的http header中content-type没有设置charset，那么浏览器
+将根据html的<meta http-equiv="content-type" content="text/html; charset=gbk"/>中的charset来解码。如果也没有定义，那么浏览器
+将使用默认的编码来解码。
+
+访问数据库都是通过客户端jdbc驱动来完成的，用jdbc来存取数据时要和数据库的内置编码保持一致，可以通过设置2jdbc url来指定，如：
+url="jdbc:mysql://localhost:3306/DB?useUnicode=true&characterEncoding=gbk"。

@@ -1,0 +1,18 @@
+http://localhost:8080/examples/servlets/servlet/君山?author=君山
+url：http://localhost:8080/examples/servlets/servlet/君山
+uri：/examples/servlets/servlet/君山
+queryString：author=君山
+contextPath：/examples
+servletPath：/servlets/servlet
+PathInfo：/君山
+
+如果这段地址输入在浏览器里，看到的结果是PathInfo用的utf-8编码，queryString是gbk编码。浏览器编码url是将非ascii字符按照某种编码格式编码
+成16进制数字后将每个16进制表示的字节前面加上“%”。
+
+tomcat在服务端是如何解码的呢？
+	对uri部分进行编码的字符集是在<Connector URIEncoding="UTF-8"/>中定义的。如果没有定义，默认使用iso-8859-1.
+	queryString的解码字符集要么是在header中Context-type定义的charset，要么是默认的iso-8859-1，要用context-type中定义的编码，就要
+	将<Connector URIEncoding="UTF-8" useBodyEncodingForURI="true"/>中的useBodyEncodingForURI设置为true。这个配置项的名字很
+	容易让人产生混淆，它并不是对整个uri都采用BodyEncoding进行解码，而仅仅是对queryString使用BodyEncoding进行解码。
+	从上面的url编码和解码过程来看，比较复杂，而且编码和解码并不是我们再程序中能完全控制的，所以在应用中，尽量避免在url中使用非ascii字符，
+	不然很可能出现乱码。

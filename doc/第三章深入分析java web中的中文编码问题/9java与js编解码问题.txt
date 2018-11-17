@@ -1,0 +1,5 @@
+在java端处理url编解码有两个类：URLEncoder和URLDecoder。这两个类可以将所有%加utf-8码值用utf-8解码，从而得到原始的字符。java的
+URLEncoder和URLDecoder与前端js对应的是encodeURIComponent和decodeURIComponent。注意，前端用encodeURIComponent编码后，到服务器
+端用URLDecoder解码可能会出现乱码，这一定是两个字符编码类型不一致导致的。js编码默认的是utf-8编码，而服务器端中文解码一般都是gbk或者
+gb2312，所以用encodeURIComponent编码后是utf-8，而java用gbk去解码显然不对。解决办法是用encodeURIComponent两次编码。
+这样在java端通过request.getParamter()用gbk解码后取得的就是utf-8编码的字符串，如果java端需要使用这个字符串，则再用utf-8解码一次。

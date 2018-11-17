@@ -1,0 +1,61 @@
+选择器提供选择执行已经就绪的任务的能力.从底层来看，Selector提供了询问通道是否已经准备好执行每个I/O操作的能力。Selector 允许单线程处理多个Channel。
+仅用单个线程来处理多个Channels的好处是，只需要更少的线程来处理通道。事实上，可以只用一个线程处理所有的通道，这样会大量的减少线程之间上下文切换的开销。
+
+选择器（Selector)
+	Selector选择器类管理着一个被注册的通道集合的信息和它们的就绪状态。通道是和选择器一起被注册的，并且使用选择器来更新通道的就绪状态。当这么做的时候，
+	可以选择将被激发的线程挂起，直到有就绪的的通道。
+选择键(SelectionKey)
+	选择键封装了特定的通道与特定的选择器的注册关系。选择键对象被SelectableChannel.register()返回并提供一个表示这种注册关系的标记。选择键包含了两个
+	比特集(以整数的形式进行编码)，指示了该注册关系所关心的通道操作，以及通道已经准备好的操作。
+
+1 创建Selector
+Selector对象是通过调用静态工厂方法open()来实例化的，如下：
+	Selector Selector=Selector.open()；
+类方法open()实际上向SPI发出请求，通过默认的SelectorProvider对象获取一个新的实例。
+
+2 将Channel注册到Selector
+要实现Selector管理Channel，需要将channel注册到相应的Selector上，如下：
+	channel.configureBlocking(false);
+	SelectionKey key = channel.register(selector,SelectionKey,OP_READ);
+通过调用通道的register()方法会将它注册到一个选择器上。与Selector一起使用时，Channel必须处于非阻塞模式下，否则将抛出IllegalBlockingModeException
+异常，这意味着不能将FileChannel与Selector一起使用，因为FileChannel不能切换到非阻塞模式，而套接字通道都可以。另外通道一旦被注册，将不能再回到阻塞状
+态，此时若调用通道的configureBlocking(true)将抛出BlockingModeException异常。
+
+register()方法的第二个参数是“interest集合”，表示选择器所关心的通道操作，它实际上是一个表示选择器在检查通道就绪状态时需要关心的操作的比特掩码。比如一个
+选择器对通道的read和write操作感兴趣，那么选择器在检查该通道时，只会检查通道的read和write操作是否已经处在就绪状态。
+它有以下四种操作类型：
+	Connect 连接
+	Accept 接受
+	Read 读
+	Write 写
+需要注意并非所有的操作在所有的可选择通道上都能被支持，比如ServerSocketChannel支持Accept，而SocketChannel中不支持。我们可以通过通道上的validOps()
+方法来获取特定通道下所有支持的操作集合。
+
+JAVA中定义了四个常量来表示这四种操作类型：
+	SelectionKey.OP_CONNECT
+	SelectionKey.OP_ACCEPT
+	SelectionKey.OP_READ
+	SelectionKey.OP_WRITE
+如果Selector对通道的多操作类型感兴趣，可以用“位或”操作符来实现：int interestSet=SelectionKey.OP_READ|SelectionKey.OP_WRITE;
+当通道触发了某个操作之后，表示该通道的某个操作已经就绪，可以被操作。因此，某个SocketChannel成功连接到另一个服务器称为“连接就绪”(OP_CONNECT)。一个
+ServerSocketChannel准备好接收新进入的连接称为“接收就绪”（OP_ACCEPT）。一个有数据可读的通道可以说是“读就绪”(OP_READ)。等待写数据的通道可以说是“写
+就绪”(OP_WRITE)。
+
+interest集合是Selector感兴趣的集合，用于指示选择器对通道关心的操作，可通过SelectionKey对象的interestOps()获取。最初，该兴趣集合是通道被注册到
+Selector时传进来的值。该集合不会被选择器改变，但是可通过interestOps()改变。我们可以通过以下方法来判断Selector是否对Channel的某种事件感兴趣：
+   int interestSet=selectionKey.interestOps();
+   boolean isInterestedInAccept  = (interestSet & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT；
+
+通过Selector的select（）方法可以选择已经准备就绪的通道（这些通道包含你感兴趣的的事件）。比如你对读就绪的通道感兴趣，那么select（）方法就会返回读事件已
+经就绪的那些通道。下面是Selector几个重载的select()方法：
+	select():阻塞到至少有一个通道在你注册的事件上就绪了。
+	select(long timeout)：和select()一样，但最长阻塞事件为timeout毫秒。
+	selectNow():非阻塞，只要有通道就绪就立刻返回。
+
+select()方法返回的int值表示有多少通道已经就绪,是自上次调用select()方法后有多少通道变成就绪状态。之前在select（）调用时进入就绪的通道不会在本次调用中
+被记入，而在前一次select（）调用进入就绪但现在已经不在处于就绪的通道也不会被记入。例如：首次调用select()方法，如果有一个通道变成就绪状态，返回了1，若再
+次调用select()方法，如果另一个通道就绪了，它会再次返回1。如果对第一个就绪的channel没有做任何操作，现在就有两个就绪的通道，但在每次select()方法调用之
+间，只有一个通道就绪了。
+
+一旦调用select()方法，并且返回值不为0时，则可以通过调用Selector的selectedKeys()方法来访问已选择键集合。如下：
+	Set selectedKeys=selector.selectedKeys();

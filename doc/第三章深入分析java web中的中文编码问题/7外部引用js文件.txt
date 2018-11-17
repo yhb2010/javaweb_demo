@@ -1,0 +1,11 @@
+在一个单独的js文件中包含字符串输入的情况，如：
+	<html>
+	<head>
+	<script src="static/script.js" charset="gbk">
+	如果里面有如下代码：
+	document.write("这是一段中文");
+	document.getElementById("id").innerHTML="中文"
+
+	这是如果script没有设置charset，浏览器就会以当前这个页面的默认字符集解析这个js文件。如果外部的js文件的编码格式与当前页面的编码格式一
+	致，那么可以不设置这个charset。但是，如果script文件与当前页面的编码格式不一致，如script.js是utf-8编码而页面是gbk编码，上面代码中
+	的中文输入就会变成乱码。

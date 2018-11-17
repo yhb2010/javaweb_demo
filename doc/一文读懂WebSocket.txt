@@ -1,0 +1,60 @@
+什么是WebSocket
+	WebSocket是一种网络协议，在OSI模型中，WebSocket协议与HTTP协议一样，都属于最顶层的应用层协议。有些朋友可能会有疑问，既然已经有了HTTP协议，为
+	什么还需要WebSocket协议呢？WebSocket协议相对于HTTP协议到底有什么优势呢？我们考虑以下场景，假设我们有一个网页版的类似于QQ一样的聊天网站，浏览
+	器需要实时地从服务器获取最新的聊天数据，如果使用HTTP协议的话，通常只能通过浏览器不断地轮询服务器来获取最新的聊天数据，因为HTTP协议不支持服务端
+	推送（虽然HTTP2已经支持服务端推送，但是HTTP2的服务端推送跟我们今天讲的服务端推送还是有区别的，后续有时间再进行介绍）。通过客户端不断轮询的缺点
+	是会造成流量浪费和性能损耗。而使用WebSocket协议则不需要客户端轮询就能获取服务器最新的数据，因为WebSocket协议支持服务端推送，在上述聊天应用中，
+	当服务端有新消息到来时，只需要通过WebSocket协议推送给客户端就行了，这样一来既能保证服务端消息的实时性，也能减少性能损耗。
+
+WebSocket协议概述
+	WebSocket是一种在单个TCP连接上进行全双工通讯的协议，其使得客户端和服务器之间的数据交换变得更加简单，允许服务端主动向客户端推送数据。在WebSocket
+	API中，浏览器和服务器只需要完成一次握手，两者之间就直接可以创建持久性的连接，并进行双向数据传输。WebSocket使用和 HTTP 相同的 TCP 端口，可以绕过
+	大多数防火墙的限制。默认情况下，WebSocket协议使用80端口；运行在TLS之上时，默认使用443端口。
+	WebSocket协议建立连接的时候需要握手，握手过程中需要借助HTTP协议来完成，当连接建立后，就可以使用WebSocket协议进行通信，通信结束后，通信双方都可
+	以关闭连接。其中，WebSocket协议握手阶段是WebSocket协议的基础，接下来将重点讲述WebSocket协议如何通过HTTP协议进行握手，从而建建立连接。
+
+WebSocket握手
+	WebSocket协议通过HTTP协议进行握手是为了兼容基于HTTP的服务器端软件和中间设施，使同一个端口能够接受HTTP客户端和WebSocket客户端，为了这个目的，
+	WebSocket客户端的握手是HTTP请求的升级。客户端和服务端需要通过一次HTTP请求与响应来进行协议升级，具体步骤如下：
+
+	1.客户端向服务端发送协议升级请求
+		客户端发送的HTTP报文示例如下：
+		GET / HTTP/1.1
+		Upgrade: websocket
+		Connection: Upgrade
+		Host: example.com
+		Origin: http://example.com
+		Sec-WebSocket-Key: sN9cRrP/n9NdMgdcy2VJFQ==
+		Sec-WebSocket-Version: 13
+
+		可以看到，其必须是一个GET请求，且HTTP版本必须为1.1。除此之外，其还有如下要求：
+		必须带有Host请求头，其值为要请求的主机名。
+		必须带有Upgrade请求头，且其值必须为websocket，表示这个HTTP请求的目的是要申请升级到websocket协议，而不是其他协议。
+		必须带有Connection请求头，其值必须为Upgrade，表示这个HTTP请求是一个协议升级请求。
+		必须带有Sec-WebSocket-Key请求头，且其值为以BASE-64编码的随机字符串。服务器端会用这些数据来构造出一个SHA-1的信息摘要。把
+		“Sec-WebSocket-Key”的值加上一个特殊字符串“258EAFA5-E914-47DA-95CA-C5AB0DC85B11”，然后计算SHA-1摘要，之后进行BASE-64编码，将结果
+		做为“Sec-WebSocket-Accept”响应头的值，返回给客户端。如此操作，可以尽量避免普通HTTP报文被误认为WebSocket协议握手报文。
+		如果这个请求是从浏览器发出的，那么还必须带有Origin请求头。
+		必须带有Sec-WebSocket-Version请求头，且其值必须为13，表示使用的WebSocket版本为13。
+
+	2.服务端响应客户端的协议升级请求
+		当服务端接收到客户端的协议升级请求时，服务端会判断是否要接受该请求，并返回相应的HTTP响应报文给客户端。如果客户端发送的HTTP请求满足上述所有要
+		求，那么服务端将会接受该协议升级请求，并返回如下响应报文：
+		HTTP/1.1 101 Switching Protocols
+		Upgrade: websocket
+		Connection: Upgrade
+		Sec-WebSocket-Accept: fFBooB7FAkLlXgRSz0BT3v4hq5s=
+
+		需要注意的是，该响应报文的状态码并不是常见的200状态码，而是101，那么101状态码表示什么意思呢？其表示的是服务端同意客户端的切换协议请求，从该
+		报文的状态码描述Switching Protocols可得知。具体来说，就是同意将当前的HTTP协议切换到WebSocket协议。
+		其次，该响应报文还必须满足如下要求：
+		必须包含Upgrade响应头，并且其值必须为websocket。
+		必须包含Connection响应头，且其值必须为Upgrade。
+		必须包含Sec-WebSocket-Accept响应头，其值根据客户端的Sec-WebSocket-Key请求头的值计算而来，具体计算规则上文已经介绍。客户端就是根据这个
+		Sec-WebSocket-Accept的值来判断该响应报文是否来自真正的WebSocket服务端，如果该值与客户端计算出来的值不相同，那么客户端将会拒绝建立
+		WebSocket连接，同时该响应头还能避免将普通的HTTP报文当成WebSocket协议握手报文。
+
+	3.客户端检查服务端的响应报文
+		当客户端接收到服务端的响应报文后，会检查其HTTP状态码是不是101，以及检查是否有Upgrade、Connection与Sec-WebSocket-Accept响应头，并且他
+		们的值是否与预期的相同，只有上述条件都满足后，WebSocket协议握手阶段才算完成，否则客户端将拒绝建立WebSocket协议连接。
+		当连接建立后，客户端与服务端就可以通过WebSocket协议进行双向通信了。

@@ -1,0 +1,18 @@
+第一阶段是找到.class文件并把这个文件包含的字节码加载到内存中。
+第二阶段又可以分为三步骤，分别是字节码验证、Class类数据结构分析及相应的内存分配和最后的符号表的链接。
+第三阶段是类中静态属性和初始化赋值，以及静态块的执行等。
+
+加载字节码到内存：
+	其实在抽象类ClassLoader中并没有定义如何去加载，这个需要子类中实现，也就是要实现findClass()方法。在URLClassLoader中通过一个URLClassPath类帮助
+	取得要加载的class文件字节流，而这个URLClassPath定义了到哪里去找这个class文件，如果找到这个class文件，再读取它的byte字节流，通过调用findClass方
+	法来创建类对象。
+
+	再看看URLClassLoader类的构造函数，可以发现必须要指定一个URL数据才能创建URLClassLoader对象，也就是必须要指定这个ClassLoader默认到哪个目录下去查
+	找class文件。
+
+	这个Url数组也是创建URLClassPath对象的必要条件。从URLClassPath的名字中可以发现他是通过URL的形式来表示ClassPath路径的。
+
+	在创建URLClassPath对象时会根据传过来的URL数组中的路径来判断是文件还是jar包，根据路径的不同分别创建FileLoader和JarLoader，或者使用默认的加载器。
+	当jvm调用findClass时，由这几个加载器来将class文件的字节码加载到内存中。
+
+	如何设置每个ClassLoader的搜索路径呢，AppClassLoader是通过-Djava.class.path= -cp或-classpath设置的。

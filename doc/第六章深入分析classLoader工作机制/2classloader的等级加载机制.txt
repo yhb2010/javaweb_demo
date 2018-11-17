@@ -1,0 +1,25 @@
+1、类加载器的顺序
+	1）加载过程中会先检查类是否被已加载，检查顺序是自底向上，从AppClassLoader到BootStrap ClassLoader逐层检查，只要某个classloader已加载就视为已加
+	载此类，保证此类只被ClassLoader加载一次。而加载的顺序是自顶向下，也就是由上层来逐层尝试加载此类。
+	2）在加载类时，每个类加载器会将加载任务上交给其父，如果其父找不到，再由自己去加载。
+	3）Bootstrap Loader（启动类加载器）是最顶级的类加载器了，其父加载器为null。
+
+BootStrap ClassLoader，它主要负责jvm自身工作需要的类，这个ClassLoader完全由jvm自己控制，需要加载哪个类、怎么加载都由jvm控制，别人也访问不到这个类，
+所以这个ClassLoader是不遵守前面介绍的加载规则的，他仅仅是一个类的加载工具而已，既没有更高一级的父加载器，也没有自加载器。
+负责加载$JAVA_HOME中jre/lib/rt.jar里所有的class，加载System.getProperty(“sun.boot.class.path”)所指定的路径或jar。
+
+ExtClassLoader，这个类加载器有点特殊，它是jvm的一部分，但是他的血统不是很纯正，他并不是jvm亲自实现的。
+负责加载java平台中扩展功能的一些jar包，包括$JAVA_HOME中jre/lib/*.jar或-Djava.ext.dirs指定目录下的jar包。载System.getProperty(“java.ext.dirs”)
+所指定的路径或jar。
+
+AppClassLoader：他的父类是ExtClassLoader。他服务的目标是所有在System.getProperty(“java.class.path”)目录下的类都可以被这个类加载器加载，这个目录
+就是我们经常使用的classpath。
+
+如果我们自己实现自己的类加载器，不管是直接实现抽象类ClassLoader，还是继承URLClassLoader类，或者其他子类，他的父类加载器都是AppClassLoader，因为不管
+调用哪个父类加载器，创建的对象都必须最终调用getSystemClassLoader()作为父加载器。而getSystemClassLoader()方法获取到的正是AppClassLoader。
+
+jvm加载class文件到内存有两种方式：
+	1、隐式加载：不通过在代码里调用ClassLoader来加载需要的类，而是通过jvm来自动加载需要的类到内存的方式，例如，当我们在类中继承或引用某个类时，jvm会在解
+	析当前这个类时发现引用的类不在内存中，那么就会自动将这些类加载到内存中。
+	2、显示加载：就是我们在代码中通过调用ClassLoader类来加载一个类的方式，例如，调用this.getClass.getClassLoader().loadClass()或者对Class.
+	forName()，或者我们自己实现的ClassLoader的findClass()方法等。
